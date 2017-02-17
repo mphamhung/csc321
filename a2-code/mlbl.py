@@ -148,18 +148,25 @@ class MLBL(object):
         # You should implement forward pass here!        
         # preds: softmax output 
         ########################################################################
-        #preds = np.array
+        
         def softmax(y):
-            return y/np.tile(np.sum(y), y.shape[1])
+            return np.exp(y)/np.sum(np.exp(y))
+        
+        def ReLU(y):
+            return np.maximum(y, 0)
             
+        def Act(inputs, weights):
+            return np.dot(inputs, weights)
         
         for i in range(batchsize):
-            ReLU = np.maximum((np.dot(Im[i],J) + bj), 0)
-            act1 = np.dot(ReLU,M)
+            act0 = ReLU(Act(Im[i], J) + bj)
+            act1 = Act(act0,M)
+            
+            act2 = 0
             
             for j in range(X.shape[1]):
-                r_wi = R.T[X[i][j]].reshape((100,1))
-                act2 = np.sum(np.dot(r_wi.T, C[j]),0)
+                r_wi = R.T[X[i][j]]
+                act2 = act2 + np.dot(r_wi, C[j])
             
             r_hat = act1+act2
             output = softmax(np.dot(r_hat, R) + bw)
@@ -168,7 +175,6 @@ class MLBL(object):
                 preds = np.vstack((preds, output))
             except:
                 preds = output
-                    
         ########################################################################
 
         return preds
@@ -207,8 +213,10 @@ class MLBL(object):
         # grad_params[4]: gradient of J
         # grad_params[5]: gradient of bj
         ########################################################################
-
-        # grad_params = ...      
+       
+        gradient = grad(self.forward)
+        
+        grad_params = gradient(params,X,Im)
 
         ########################################################################
         
