@@ -136,7 +136,8 @@ class MLBL(object):
             test: flag, whether test or train
         """
         batchsize = X.shape[0]
-
+        contextsize = X.shape[1]
+        
         R = params[0]   # word representations, variable 'R' in the paper
         C = params[1]   # context parameter of text modality, variable 'C^i' in the paper
         bw = params[2]  # bias of text modality, variable 'R' in the paper
@@ -148,24 +149,16 @@ class MLBL(object):
         # You should implement forward pass here!        
         # preds: softmax output 
         ########################################################################
-        
-        contextsize = X.shape[1]
-        
+
+        res = np.zeros(R.shape[1])
         def softmax(y):
             return np.exp(np.array(y))/np.sum(np.exp(np.array(y)))
         
-        def ReLU(y):
-            return np.maximum(y, 0)
-            
-        def Act(inputs, weights):
-            return np.dot(inputs, weights)
-        
         for i in range(batchsize):
-            act0 = ReLU(Act(Im[i], J) + bj)
-            act1 = Act(act0,M)
-            
+            r_wi = R[:,X[i]]
+            act0 = np.maximum(np.dot(Im[i], J) + bj,0)
+            act1 = np.dot(act0,M)
             act2 = 0
-            
             for j in range(contextsize):
                 r_wi = np.transpose(R)[X[i][j]]
                 act2 = act2 + np.dot(r_wi, C[j])
@@ -173,11 +166,12 @@ class MLBL(object):
             r_hat = act1+act2
             output = softmax(np.dot(r_hat, R) + bw)
             
-            try:
-                preds = np.vstack((preds, output))
-            except:
-                preds = output
+
+            res = np.vstack((res, output))
+
         ########################################################################
+        
+        preds = res[1:]
         return preds
 
     def objective(self, Y, preds):
