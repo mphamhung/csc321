@@ -149,8 +149,10 @@ class MLBL(object):
         # preds: softmax output 
         ########################################################################
         
+        contextsize = X.shape[1]
+        
         def softmax(y):
-            return np.exp(y)/np.sum(np.exp(y))
+            return np.exp(np.array(y))/np.sum(np.exp(np.array(y)))
         
         def ReLU(y):
             return np.maximum(y, 0)
@@ -164,7 +166,7 @@ class MLBL(object):
             
             act2 = 0
             
-            for j in range(X.shape[1]):
+            for j in range(contextsize):
                 r_wi = np.transpose(R)[X[i][j]]
                 act2 = act2 + np.dot(r_wi, C[j])
             
@@ -176,8 +178,6 @@ class MLBL(object):
             except:
                 preds = output
         ########################################################################
-
-        print "hi hi hihihi"
         return preds
 
     def objective(self, Y, preds):
@@ -215,9 +215,9 @@ class MLBL(object):
         # grad_params[5]: gradient of bj
         ########################################################################
        
-        gradient = grad(self.forward)
+        gradient = grad(self.compute_obj)
         
-        grad_params = gradient(params,X,Im)
+        grad_params = gradient(params,X,Im,Y)
 
         ########################################################################
         
