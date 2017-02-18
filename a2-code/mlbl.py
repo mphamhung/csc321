@@ -165,7 +165,7 @@ class MLBL(object):
             act2 = 0
             
             for j in range(X.shape[1]):
-                r_wi = R.T[X[i][j]]
+                r_wi = np.transpose(R)[X[i][j]]
                 act2 = act2 + np.dot(r_wi, C[j])
             
             r_hat = act1+act2
