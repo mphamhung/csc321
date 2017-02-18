@@ -177,6 +177,7 @@ class MLBL(object):
                 preds = output
         ########################################################################
 
+        print "hi hi hihihi"
         return preds
 
     def objective(self, Y, preds):
