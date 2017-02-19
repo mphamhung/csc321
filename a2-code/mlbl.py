@@ -149,29 +149,22 @@ class MLBL(object):
         # You should implement forward pass here!        
         # preds: softmax output 
         ########################################################################
-
-        res = np.zeros(R.shape[1])
-        def softmax(y):
-            return np.exp(np.array(y))/np.sum(np.exp(np.array(y)))
         
-        for i in range(batchsize):
-            r_wi = R[:,X[i]]
-            act0 = np.maximum(np.dot(Im[i], J) + bj,0)
-            act1 = np.dot(act0,M)
-            act2 = 0
-            for j in range(contextsize):
-                r_wi = np.transpose(R)[X[i][j]]
-                act2 = act2 + np.dot(r_wi, C[j])
+        def softmax(y):
+            return np.exp(y)/np.transpose(np.tile(np.sum(np.exp(y),1), (y.shape[1],1)))
             
-            r_hat = act1+act2
-            output = softmax(np.dot(r_hat, R) + bw)
-            
+        act = np.dot(np.maximum(np.dot(Im, J) + bj, 0),M)
+        sum = 0
+        for i in range(contextsize):
+            r_wi = R[:,X[:,i]]
+            sum1 = np.dot(r_wi.T, C[i])
+            sum = sum + sum1
 
-            res = np.vstack((res, output))
+        r_hat = sum+act
+        preds = softmax(np.dot(r_hat, R) + bw)
 
         ########################################################################
         
-        preds = res[1:]
         return preds
 
     def objective(self, Y, preds):
@@ -326,7 +319,7 @@ class MLBL(object):
                     # lm_tools.generate_and_show(self, word_dict, count_dict, VIM, k=3)
                     VIM_example = VIM[prog['_val_example_idx'], :]
                     VIM_file_list = prog['_val_example_file']
-                    lm_tools.generate_and_show_html(self, word_dict, count_dict, VIM_example, VIM_file_list, show=prog['_show_browser'], k=3)
+                    #lm_tools.generate_and_show_html(self, word_dict, count_dict, VIM_example, VIM_file_list, show=prog['_show_browser'], k=3)
                     print ' '
                 if np.mod(minibatch * self.batchsize, prog['_update']) == 0 and minibatch > 0:
                     self.update_hyperparams()
